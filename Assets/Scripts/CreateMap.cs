@@ -10,6 +10,7 @@ public class CreateMap : MonoBehaviour
     public GameObject FloorTile;
     public GameObject CorridorTile;
 
+    [SerializeField]
     private GameObject[,] boardPositionsFloor;
     
     public class DungeonTree
@@ -20,6 +21,10 @@ public class CreateMap : MonoBehaviour
 
         public List<Rect> corridors = new List<Rect>();
 
+        public GameObject corridorParents = null;
+        bool toleft = false;
+        bool toright = false;
+
 #if UNITY_EDITOR
         public int DebugID;
         private static int DebugCounter = 0;
@@ -28,10 +33,14 @@ public class CreateMap : MonoBehaviour
         public DungeonTree(Rect _rect)
         {
             rect = _rect;
+            
 #if UNITY_EDITOR
             DebugID = DebugCounter;
             ++DebugCounter;
 #endif
+            
+            
+
         }
 
         public bool isLeaf()
@@ -75,28 +84,34 @@ public class CreateMap : MonoBehaviour
                 right = new DungeonTree(new Rect(rect.x + split, rect.y, rect.width - split, rect.height));
             }
 
+            
+
             return true;
 
         }
 
-        public Rect GetRoom()
+        public Rect GetRoom(out int id)
         {
             if (isLeaf())
+            {
+                id = DebugID;
                 return room;
+            }
 
             if (left != null)
             {
-                Rect lroom = left.GetRoom();
+                Rect lroom = left.GetRoom(out id);
                 if (lroom.x != -1)
                     return lroom;
             }
             if (right != null)
             {
-                Rect rroom = right.GetRoom();
+                Rect rroom = right.GetRoom(out id);
                 if (rroom.x != -1)
                     return rroom;
             }
 
+            id = -1;
             return new Rect(-1, -1, 0, 0);
 
         }
@@ -117,30 +132,47 @@ public class CreateMap : MonoBehaviour
 
                 room = new Rect(rect.x + rPosX, rect.y + rPosY, rWidth, rHeight);
 
+                GameObject parent = new GameObject($"Room_{DebugID}");
+                parent.transform.position = new Vector2(room.x, room.y);
+                parent.transform.SetParent(GameObject.Find("Rooms").transform);
 #if UNITY_EDITOR
                 Debug.Log($"Create Room Image {room} in DungeonTree {DebugID} : {rect}");
                 Debug.DrawLine(new Vector3(room.x, room.y), new Vector3(room.x + room.width, room.y), Color.green, 100);
                 Debug.DrawLine(new Vector3(room.x + room.width, room.y), new Vector3(room.x + room.width, room.y + room.height), Color.green, 100);
                 Debug.DrawLine(new Vector3(room.x + room.width, room.y + room.height), new Vector3(room.x, room.y + room.height), Color.green, 100);
                 Debug.DrawLine(new Vector3(room.x, room.y + room.height), new Vector3(room.x, room.y), Color.green, 100);
+
+                Debug.DrawLine(new Vector3(rect.x, rect.y), new Vector3(rect.x + rect.width, rect.y), Color.red, 100);
+                Debug.DrawLine(new Vector3(rect.x + rect.width, rect.y), new Vector3(rect.x + rect.width, rect.y + rect.height), Color.red, 100);
+                Debug.DrawLine(new Vector3(rect.x + rect.width, rect.y + rect.height), new Vector3(rect.x, rect.y + rect.height), Color.red, 100);
+                Debug.DrawLine(new Vector3(rect.x, rect.y + rect.height), new Vector3(rect.x, rect.y), Color.red, 100);
 #endif
-                
+
             }
 
             if (right != null && left != null)
+            {
                 CreateCorridorBetween(left, right);
+                
+            }
+                
+
         }
 
         public void CreateCorridorBetween(DungeonTree left, DungeonTree right)
         {
-            Rect lroom = left.GetRoom();
-            Rect rroom = right.GetRoom();
+            int lid, rid;
+            Rect lroom = left.GetRoom(out lid);
+            Rect rroom = right.GetRoom(out rid);
 
+            corridorParents = new GameObject($"Corridor_{lid}_to_{rid}");
+            corridorParents.transform.SetParent(GameObject.Find("Corridors").transform);
 #if UNITY_EDITOR
-            Debug.Log($"Create Corridor Between {left.DebugID} ( {lroom} ) & {right.DebugID} ( {lroom} )");
+            Debug.Log($"Create Corridor Between {lid} ( {lroom} ) & {rid} ( {rroom} )");
 #endif
-            Vector2 lpoint = new Vector2((int)Random.Range(lroom.x + 2, lroom.xMax - 2), (int)Random.Range(lroom.y + 2, lroom.yMax - 2));
-            Vector2 rpoint = new Vector2((int)Random.Range(rroom.x + 2, rroom.xMax - 2), (int)Random.Range(rroom.y + 2, rroom.yMax - 2));
+            Vector2 lpoint = new Vector2((int)Random.Range(lroom.x + 1, lroom.xMax - 1), (int)Random.Range(lroom.y + 1, lroom.yMax - 1));
+            Vector2 rpoint = new Vector2((int)Random.Range(rroom.x + 1, rroom.xMax - 1), (int)Random.Range(rroom.y + 1, rroom.yMax - 1));
+
 
             if (lpoint.x > rpoint.x)
             {
@@ -184,6 +216,8 @@ public class CreateMap : MonoBehaviour
                     corridors.Add(new Rect((int)rpoint.x, (int)rpoint.y, 1, Mathf.Abs(h)));
             }
 
+            
+
 #if UNITY_EDITOR
             Debug.Log($"Corridors : ");
             foreach (Rect corridor in corridors)
@@ -209,7 +243,7 @@ public class CreateMap : MonoBehaviour
                 if(dungeonTree.split(minRoomSize, maxRoomSize))
                 {
 #if UNITY_EDITOR
-                    Debug.Log(  $"Split DungeonTree Success {dungeonTree.left.DebugID} : {dungeonTree.left.rect}\n" +
+                    Debug.Log($"Split DungeonTree Success {dungeonTree.left.DebugID} : {dungeonTree.left.rect}\n" +
                                 $"{dungeonTree.right.DebugID} : {dungeonTree.right.rect}");
 #endif
                     CreateBSP(dungeonTree.left);
@@ -240,7 +274,8 @@ public class CreateMap : MonoBehaviour
                 for (int j = (int)dungeonTree.room.y; j < dungeonTree.room.yMax; j++)
                 {
                     GameObject temp = Instantiate(FloorTile, new Vector3(i, j, 0f), Quaternion.identity) as GameObject;
-                    temp.transform.SetParent(transform);
+                    temp.name = $"{i} , {j}";
+                    temp.transform.SetParent(GameObject.Find($"Room_{dungeonTree.DebugID}").transform);
                     boardPositionsFloor[i, j] = temp;
                 }
 
@@ -260,6 +295,7 @@ public class CreateMap : MonoBehaviour
         DrawCorridors(dungeonTree.left);
         DrawCorridors(dungeonTree.right);
 
+
         foreach (Rect corridor in dungeonTree.corridors)
         {
             for (int i = (int)corridor.x; i < corridor.xMax; i++)
@@ -269,40 +305,13 @@ public class CreateMap : MonoBehaviour
                     if (boardPositionsFloor[i, j] == null)
                     {
                         GameObject temp = Instantiate(CorridorTile, new Vector3(i, j, 0f), Quaternion.identity) as GameObject;
-                        temp.transform.SetParent(transform);
+                        temp.transform.SetParent(dungeonTree.corridorParents.transform);
                         boardPositionsFloor[i, j] = temp;
                     }
                 }
             }
         }
     }
-    //public void DrawCorridors(DungeonTree dungeonTree)
-    //{
-    //    if (dungeonTree == null)
-    //        return;
-
-    //    DrawCorridors(dungeonTree.left);
-    //    DrawCorridors(dungeonTree.right);
-
-    //    foreach (Rect corridor in dungeonTree.corridors)
-    //    {
-    //        for (int i = (int)corridor.x; i < corridor.xMax; i++)
-    //        {
-    //            for (int j = (int)corridor.y; j<corridor.yMax; j++)
-    //            {
-    //                if(boardPositionsFloor[i,j] == null)
-    //                {
-    //                    GameObject temp = Instantiate(CorridorTile, new Vector3(i, j, 0f), Quaternion.identity) as GameObject;
-    //                    temp.transform.SetParent(transform);
-    //                    boardPositionsFloor[i, j] = temp;
-    //                }
-    //            }
-
-    //        }
-
-    //    }
-
-    //}
 
 
 
