@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class RoomFirstDungeonGenerator : MapGeneratior
+public class RoomFirstDungeonGenerator : FloorGeneratior
 {
 	[SerializeField] private int minRoomWidth = 4;
 	[SerializeField] private int minRoomHeight = 4;
@@ -22,7 +22,7 @@ public class RoomFirstDungeonGenerator : MapGeneratior
 
 	private void CreateRooms()
 	{
-		var roomsList =	BSPAlgorithm.BinarySpacePartitioning(new BoundsInt((Vector3Int)startPosition, new Vector3Int(dungeonWidth, dungeonHeight, 0)), minRoomWidth, minRoomHeight);
+		var roomsList =	BasicAlgorithm.BinarySpacePartitioning(new BoundsInt((Vector3Int)startPosition, new Vector3Int(dungeonWidth, dungeonHeight, 0)), minRoomWidth, minRoomHeight);
 
 		HashSet<Vector2Int> floor = new HashSet<Vector2Int>();
 		if (RandomWalk)

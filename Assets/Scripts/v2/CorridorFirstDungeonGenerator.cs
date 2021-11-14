@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class CorridorFirstDungeonGenerator : MapGeneratior
+public class CorridorFirstDungeonGenerator : FloorGeneratior
 {
 	[SerializeField] private int corridorLength = 14;
 	[SerializeField] private int corridorCount = 5;
@@ -51,7 +51,7 @@ public class CorridorFirstDungeonGenerator : MapGeneratior
 		foreach (Vector2Int pos in floorPositions)
 		{
 			int neighbourCount = 0;
-			foreach (var direction in Direction2D.DirectionList)
+			foreach (var direction in Direction2D.cardinalDirectionsList)
 			{
 				if(floorPositions.Contains(pos + direction))
 					++neighbourCount;
@@ -85,7 +85,7 @@ public class CorridorFirstDungeonGenerator : MapGeneratior
 
 		for (int i = 0; i < corridorCount; i++)
 		{
-			List<Vector2Int> corridor = BSPAlgorithm.RandomWalkCorridor(curPos, corridorLength);
+			List<Vector2Int> corridor = BasicAlgorithm.RandomWalkCorridor(curPos, corridorLength);
 			curPos = corridor[corridor.Count - 1];
 			roomPositions.Add(curPos);
 			positions.UnionWith(corridor);

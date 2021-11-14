@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class MapGeneratior : AbstractDungeonGenerator
+public class FloorGeneratior : AbstractDungeonGenerator
 {
     [SerializeField] protected SimpleRandomWalkSO randomWalkParams;
 
@@ -24,7 +24,7 @@ public class MapGeneratior : AbstractDungeonGenerator
 
         for (int i = 0; i < parameters.iterations; i++)
         {
-            HashSet<Vector2Int> path = BSPAlgorithm.SimpleRandomWalk(curPos, parameters.walkLength);
+            HashSet<Vector2Int> path = BasicAlgorithm.SimpleRandomWalk(curPos, parameters.walkLength);
             floorPos.UnionWith(path);
 
             if (parameters.startRandomEachIteration)
