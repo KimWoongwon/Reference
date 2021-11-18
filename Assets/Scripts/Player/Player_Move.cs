@@ -9,11 +9,11 @@ public class Player_Move : MonoBehaviour
 
     [ReadOnly] public Vector2 MoveVector = Vector2.zero;
     public float MoveSpeed;
-    Rigidbody2D rigidbody;
+    Rigidbody2D rbody;
 
     void Start()
     {
-        rigidbody = GetComponent<Rigidbody2D>();
+        rbody = GetComponent<Rigidbody2D>();
     }
 
     // Update is called once per frame
@@ -24,7 +24,7 @@ public class Player_Move : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rigidbody.velocity = MoveVector.normalized * MoveSpeed;
+        rbody.velocity = MoveVector.normalized * MoveSpeed;
     }
 
     void SetMoveVector()

@@ -5,27 +5,15 @@ using MYFSM;
 using CUSTOM_ReadOnly;
 using System;
 
-public class Player_FSM : MonoBehaviour
+public class Player_FSM : Character_FSM<PLAYER_STATE>
 {
-    public Machine<Player_FSM> m_state;
-    public FSM<Player_FSM>[] m_arrState = new FSM<Player_FSM>[(int)PLAYER_STATE.END];
-
-    [ReadOnly] public PLAYER_STATE m_CurState;
-    [ReadOnly] public PLAYER_STATE m_PreState;
-
-    [ReadOnly] public Animator m_Animator;
-
-    [ReadOnly] public Vector2Int StartPosition;
-
     public Player_FSM()
     {
         Init();
     }
 
-    private void Init()
+    protected override void Init()
     {
-        m_state = new Machine<Player_FSM>();
-
         m_arrState[(int)PLAYER_STATE.IDLE] = new Player_Idle(this);
         m_arrState[(int)PLAYER_STATE.WALK] = new Player_Walk(this);
         m_arrState[(int)PLAYER_STATE.ATTACK] = new Player_Attack(this);
@@ -34,24 +22,26 @@ public class Player_FSM : MonoBehaviour
         m_state.SetState(m_arrState[(int)PLAYER_STATE.IDLE], this);
     }
 
-    public void ChangeState(PLAYER_STATE state)
+    protected override void Begin()
     {
-        m_state.Change(m_arrState[(int)state]);
+        throw new NotImplementedException();
     }
 
-    public void Begin()
+    protected override void Exit()
     {
-
+        throw new NotImplementedException();
     }
+
+
 
     // Start is called before the first frame update
-    void Start()
+    protected override void Start()
     {
         m_state.Begin();
     }
 
     // Update is called once per frame
-    void Update()
+    protected override void Update()
     {
         m_state.Run();
     }
