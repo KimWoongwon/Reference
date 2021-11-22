@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class CorridorFirstDungeonGenerator : FloorGeneratior
+public class CorridorFirstDungeonGenerator : FloorGenerator
 {
 	[SerializeField] private int corridorLength = 14;
 	[SerializeField] private int corridorCount = 5;
@@ -33,18 +33,6 @@ public class CorridorFirstDungeonGenerator : FloorGeneratior
 		WallGenerator.CreateWalls(floorPositions, tilemapVisualizer);
 	}
 
-	private void CreateRoomsAtDeadEnd(List<Vector2Int> deadEnds, HashSet<Vector2Int> roomFloors)
-	{
-		foreach (Vector2Int pos in deadEnds)
-		{
-			if (roomFloors.Contains(pos) == false)
-			{
-				HashSet<Vector2Int> room = RunRandomWalk(randomWalkParams, pos);
-				roomFloors.UnionWith(room);
-			}
-		}
-	}
-
 	private List<Vector2Int> FindAllDeadEnds(HashSet<Vector2Int> floorPositions)
 	{
 		List<Vector2Int> deadEnds = new List<Vector2Int>();
@@ -53,7 +41,7 @@ public class CorridorFirstDungeonGenerator : FloorGeneratior
 			int neighbourCount = 0;
 			foreach (var direction in Direction2D.cardinalDirectionsList)
 			{
-				if(floorPositions.Contains(pos + direction))
+				if (floorPositions.Contains(pos + direction))
 					++neighbourCount;
 			}
 			if (neighbourCount == 1)
@@ -91,4 +79,17 @@ public class CorridorFirstDungeonGenerator : FloorGeneratior
 			positions.UnionWith(corridor);
 		}
 	}
+
+	private void CreateRoomsAtDeadEnd(List<Vector2Int> deadEnds, HashSet<Vector2Int> roomFloors)
+	{
+		foreach (Vector2Int pos in deadEnds)
+		{
+			if (roomFloors.Contains(pos) == false)
+			{
+				HashSet<Vector2Int> room = RunRandomWalk(randomWalkParams, pos);
+				roomFloors.UnionWith(room);
+			}
+		}
+	}
+	
 }

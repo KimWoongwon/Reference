@@ -7,6 +7,12 @@ using System;
 
 public class Player_FSM : Character_FSM<PLAYER_STATE>
 {
+    [HideInInspector] public Vector2 MoveVector = Vector2.zero;
+    [HideInInspector] public Rigidbody2D m_rbody;
+    
+    public float MoveSpeed;
+    public float AttackDelay;
+    
     public Player_FSM()
     {
         Init();
@@ -24,25 +30,29 @@ public class Player_FSM : Character_FSM<PLAYER_STATE>
 
     protected override void Begin()
     {
-        throw new NotImplementedException();
+        m_state.Begin();
+        m_rbody = GetComponent<Rigidbody2D>();
     }
 
     protected override void Exit()
     {
-        throw new NotImplementedException();
+        m_state.Exit();
     }
 
-
+    protected override void Run()
+    {
+        m_state.Run();
+    }
 
     // Start is called before the first frame update
     protected override void Start()
     {
-        m_state.Begin();
+        Begin();
     }
 
     // Update is called once per frame
     protected override void Update()
     {
-        m_state.Run();
+        Run();
     }
 }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class RoomFirstDungeonGenerator : FloorGeneratior
+public class RoomFirstDungeonGenerator : FloorGenerator
 {
 	[SerializeField] private int minRoomWidth = 4;
 	[SerializeField] private int minRoomHeight = 4;
@@ -41,6 +41,24 @@ public class RoomFirstDungeonGenerator : FloorGeneratior
 		WallGenerator.CreateWalls(floor, tilemapVisualizer);
 	}
 
+	private Vector2Int FindClosestPointTo(Vector2Int curCenter, List<Vector2Int> roomCenters)
+	{
+		Vector2Int closest = Vector2Int.zero;
+		float distance = float.MaxValue;
+
+		foreach (var pos in roomCenters)
+		{
+			float curDist = Vector2.Distance(pos, curCenter);
+			if (curDist < distance)
+			{
+				distance = curDist;
+				closest = pos;
+			}
+		}
+
+		return closest;
+	}
+
 	private HashSet<Vector2Int> CreateRoomsRandomly(List<BoundsInt> roomsList)
 	{
 		HashSet<Vector2Int> floor = new HashSet<Vector2Int>();
@@ -59,21 +77,22 @@ public class RoomFirstDungeonGenerator : FloorGeneratior
 		return floor;
 	}
 
-	private HashSet<Vector2Int> ConnectRooms(List<Vector2Int> roomCenters)
+	private HashSet<Vector2Int> CreateSimpleRooms(List<BoundsInt> roomsList)
 	{
-		HashSet<Vector2Int> corridors = new HashSet<Vector2Int>();
-		var curCenter = roomCenters[Random.Range(0, roomCenters.Count)];
-		roomCenters.Remove(curCenter);
-
-		while (roomCenters.Count > 0)
+		HashSet<Vector2Int> floor = new HashSet<Vector2Int>();
+		foreach (var room in roomsList)
 		{
-			Vector2Int closest = FindClosestPointTo(curCenter, roomCenters);
-			roomCenters.Remove(closest);
-			HashSet<Vector2Int> newCorridor = CreateCorridor(curCenter, closest);
-			curCenter = closest;
-			corridors.UnionWith(newCorridor);
+			for (int col = offset; col < room.size.x - offset; col++)
+			{
+				for (int row = offset; row < room.size.y - offset; row++)
+				{
+					Vector2Int position = (Vector2Int)room.min + new Vector2Int(col, row);
+					floor.Add(position);
+				}
+			}
 		}
-		return corridors;
+
+		return floor;
 	}
 
 	private HashSet<Vector2Int> CreateCorridor(Vector2Int curCenter, Vector2Int destination)
@@ -101,39 +120,20 @@ public class RoomFirstDungeonGenerator : FloorGeneratior
 		return corridor;
 	}
 
-	private Vector2Int FindClosestPointTo(Vector2Int curCenter, List<Vector2Int> roomCenters)
+	private HashSet<Vector2Int> ConnectRooms(List<Vector2Int> roomCenters)
 	{
-		Vector2Int closest = Vector2Int.zero;
-		float distance = float.MaxValue;
+		HashSet<Vector2Int> corridors = new HashSet<Vector2Int>();
+		var curCenter = roomCenters[Random.Range(0, roomCenters.Count)];
+		roomCenters.Remove(curCenter);
 
-		foreach (var pos in roomCenters)
+		while (roomCenters.Count > 0)
 		{
-			float curDist = Vector2.Distance(pos, curCenter);
-			if (curDist < distance)
-			{
-				distance = curDist;
-				closest = pos;
-			}
+			Vector2Int closest = FindClosestPointTo(curCenter, roomCenters);
+			roomCenters.Remove(closest);
+			HashSet<Vector2Int> newCorridor = CreateCorridor(curCenter, closest);
+			curCenter = closest;
+			corridors.UnionWith(newCorridor);
 		}
-
-		return closest;
-	}
-
-	private HashSet<Vector2Int> CreateSimpleRooms(List<BoundsInt> roomsList)
-	{
-		HashSet<Vector2Int> floor = new HashSet<Vector2Int>();
-		foreach (var room in roomsList)
-		{
-			for (int col = offset; col < room.size.x - offset; col++)
-			{
-				for (int row = offset; row < room.size.y - offset; row++)
-				{
-					Vector2Int position = (Vector2Int)room.min + new Vector2Int(col, row);
-					floor.Add(position);
-				}
-			}
-		}
-
-		return floor;
+		return corridors;
 	}
 }

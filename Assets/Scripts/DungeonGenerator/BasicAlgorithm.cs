@@ -56,7 +56,7 @@ static public class BasicAlgorithm
 	/// <summary>
 	/// BSP 알고리즘 
 	/// Queue에 영역(BoundsInt)가 추가되면서 재귀함수의 형태로 작동한다.
-	/// 영역(BoundsInt)가 추가되는 시점 : SplitHorizontally & SplitVertically
+	/// 영역(BoundsInt)이 추가되는 시점 : SplitHorizontally & SplitVertically
 	/// </summary>
 	/// <param name="spaceToSplit"> Split될 영역 </param>
 	/// <param name="minWidth"> 최소 폭 </param>

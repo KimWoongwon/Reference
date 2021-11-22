@@ -41,4 +41,6 @@ public class Player_Move : MonoBehaviour
         else if (Input.GetKey(KeyCode.A))
             MoveVector.x = -1;
     }
+
+
 }

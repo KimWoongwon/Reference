@@ -26,22 +26,26 @@ public class Enemy_01_FSM : Character_FSM<ENEMY_01_STATE>
 
     protected override void Begin()
     {
-        throw new NotImplementedException();
+        m_state.Begin();
     }
 
     protected override void Exit()
     {
-        throw new NotImplementedException();
+        m_state.Exit();
+    }
+    protected override void Run()
+    {
+        m_state.Run();
     }
 
     protected override void Start()
     {
-        throw new NotImplementedException();
+        Begin();
     }
 
     protected override void Update()
     {
-        throw new NotImplementedException();
+        Run();
     }
 
     

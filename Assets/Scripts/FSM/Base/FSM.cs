@@ -30,6 +30,7 @@ namespace MYFSM
         abstract protected void Init();
         abstract protected void Begin();
         abstract protected void Exit();
+        abstract protected void Run();
 
         abstract protected void Start();
         abstract protected void Update();

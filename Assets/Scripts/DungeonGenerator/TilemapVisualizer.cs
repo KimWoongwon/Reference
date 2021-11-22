@@ -27,7 +27,7 @@ public class TilemapVisualizer : MonoBehaviour
     [SerializeField] private List<TileBase> DiagonalUpLeft;
     [SerializeField] private List<TileBase> DiagonalUpRight;
 
-    TileBase getRandomTile(List<TileBase> tilelist)
+    private TileBase getRandomTile(List<TileBase> tilelist)
     {
         return tilelist[Random.Range(0, tilelist.Count)];
     }
@@ -36,26 +36,6 @@ public class TilemapVisualizer : MonoBehaviour
     {
         PaintTiles(floorPositions, floorTilemap, FloorTile);
     }
-
-	internal void PaintSingleBaiscWall(Vector2Int pos, string binarycode)
-    {
-        int codeAsInt = Convert.ToInt32(binarycode, 2);
-
-        TileBase tile = null;
-        if (WallTypesHelper.wallTop.Contains(codeAsInt))
-            tile = getRandomTile(Top);
-        else if (WallTypesHelper.wallSideRight.Contains(codeAsInt))
-            tile = getRandomTile(Right);
-        else if (WallTypesHelper.wallSideLeft.Contains(codeAsInt))
-            tile = getRandomTile(Left);
-        else if (WallTypesHelper.wallBottom.Contains(codeAsInt))
-            tile = getRandomTile(Bottom);
-        else if (WallTypesHelper.wallFull.Contains(codeAsInt))
-            tile = getRandomTile(Full);
-
-        if (tile != null)
-            PaintSingleTile(wallTilemap, tile, pos);
-	}
 
 	private void PaintTiles(IEnumerable<Vector2Int> positions, Tilemap tilemap, TileBase tile)
     {
@@ -75,6 +55,26 @@ public class TilemapVisualizer : MonoBehaviour
     {
         floorTilemap.ClearAllTiles();
         wallTilemap.ClearAllTiles();
+    }
+
+    internal void PaintSingleBaiscWall(Vector2Int pos, string binarycode)
+    {
+        int codeAsInt = Convert.ToInt32(binarycode, 2);
+
+        TileBase tile = null;
+        if (WallTypesHelper.wallTop.Contains(codeAsInt))
+            tile = getRandomTile(Top);
+        else if (WallTypesHelper.wallSideRight.Contains(codeAsInt))
+            tile = getRandomTile(Right);
+        else if (WallTypesHelper.wallSideLeft.Contains(codeAsInt))
+            tile = getRandomTile(Left);
+        else if (WallTypesHelper.wallBottom.Contains(codeAsInt))
+            tile = getRandomTile(Bottom);
+        else if (WallTypesHelper.wallFull.Contains(codeAsInt))
+            tile = getRandomTile(Full);
+
+        if (tile != null)
+            PaintSingleTile(wallTilemap, tile, pos);
     }
 
     internal void PaintSingleCornerWall(Vector2Int pos, string binarycode)
